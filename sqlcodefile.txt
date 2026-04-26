@@ -1,0 +1,53 @@
+//student table code 
+
+CREATE TABLE STUDENTS (
+    studentID NUMBER GENERATED ALWAYS AS IDENTITY,
+    fName Varchar(64),
+    lName Varchar(64),
+    email Varchar(128) UNIQUE,
+    "year" Varchar(64) CHECK("year" IN ('freshman', 'sophomore', 'junior', 'senior')),
+    Primary Key(studentID)
+);
+
+//instructors table code
+
+CREATE TABLE INSTRUCTORS (
+    instructorID NUMBER GENERATED ALWAYS AS IDENTITY,
+    fName Varchar(64),
+    lName Varchar(64),
+    email Varchar(64) UNIQUE,
+    department Varchar(64),
+    Primary Key (instructorID)
+);
+
+//courses table code
+
+CREATE TABLE COURSES (
+    courseID NUMBER GENERATED ALWAYS AS IDENTITY,
+    courseName Varchar(64),
+    instructorID INT REFERENCES INSTRUCTORS(instructorID),
+    maxSeats INT,
+    Primary Key(courseID)
+);
+
+//enrollments table code
+
+CREATE TABLE ENROLLMENTS (
+    ticketID NUMBER GENERATED ALWAYS AS IDENTITY,
+    studentID INT UNIQUE REFERENCES STUDENTS(studentID),
+    courseID INT UNIQUE REFERENCES COURSES(courseID), 
+    seatNum INT UNIQUE,
+    timeStamp DATE DEFAULT SYSDATE,
+    Primary Key (ticketID)
+);
+
+//waitlist table code
+
+CREATE TABLE WAITLIST (
+    waitlistID NUMBER GENERATED ALWAYS AS IDENTITY,
+    studentID INT UNIQUE REFERENCES STUDENTS(studentID),
+    courseID INT UNIQUE REFERENCES COURSES(courseID),
+    position INT,
+    Primary Key(waitlistID)
+);
+
