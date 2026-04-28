@@ -13,3 +13,5 @@ Mario DeVito
 Jeter Wang
 Tammem Ahmed
 
+To deploy, copy and paste the code into Oracle APEX under the SQL Workshop tab.
+
