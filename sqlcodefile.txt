@@ -1,53 +1,56 @@
 //student table code 
-
 CREATE TABLE STUDENTS (
-    studentID NUMBER GENERATED ALWAYS AS IDENTITY,
-    fName Varchar(64),
-    lName Varchar(64),
-    email Varchar(128) UNIQUE,
+    studentID NUMBER GENERATED ALWAYS AS IDENTITY (START WITH 100),
+    fName VARCHAR2(64),
+    lName VARCHAR2(64),
+    email VARCHAR2(128) UNIQUE,
     "year" Varchar(64) CHECK("year" IN ('freshman', 'sophomore', 'junior', 'senior')),
-    Primary Key(studentID)
+    PRIMARY KEY (studentID)
 );
 
 //instructors table code
 
 CREATE TABLE INSTRUCTORS (
-    instructorID NUMBER GENERATED ALWAYS AS IDENTITY,
-    fName Varchar(64),
-    lName Varchar(64),
-    email Varchar(64) UNIQUE,
-    department Varchar(64),
-    Primary Key (instructorID)
+    instructorID NUMBER GENERATED ALWAYS AS IDENTITY (START WITH 200),
+    fName VARCHAR2(64),
+    lName VARCHAR2(64),
+    email VARCHAR2(64) UNIQUE,
+    department VARCHAR2(64),
+    PRIMARY KEY (instructorID)
 );
 
 //courses table code
 
 CREATE TABLE COURSES (
-    courseID NUMBER GENERATED ALWAYS AS IDENTITY,
-    courseName Varchar(64),
+    courseID NUMBER GENERATED ALWAYS AS IDENTITY (START WITH 300),
+    courseName VARCHAR2(64),
     instructorID INT REFERENCES INSTRUCTORS(instructorID),
     maxSeats INT,
-    Primary Key(courseID)
+    PRIMARY KEY (courseID)
 );
+
 
 //enrollments table code
 
 CREATE TABLE ENROLLMENTS (
     ticketID NUMBER GENERATED ALWAYS AS IDENTITY,
-    studentID INT UNIQUE REFERENCES STUDENTS(studentID),
-    courseID INT UNIQUE REFERENCES COURSES(courseID), 
-    seatNum INT UNIQUE,
+    studentID NUMBER REFERENCES STUDENTS(studentID),
+    courseID NUMBER REFERENCES COURSES(courseID),
+    seatNum NUMBER,
     timeStamp DATE DEFAULT SYSDATE,
-    Primary Key (ticketID)
+    PRIMARY KEY (ticketID),
+    UNIQUE (studentID, courseID),
+    UNIQUE (courseID, seatNum)
 );
 
 //waitlist table code
 
 CREATE TABLE WAITLIST (
     waitlistID NUMBER GENERATED ALWAYS AS IDENTITY,
-    studentID INT UNIQUE REFERENCES STUDENTS(studentID),
-    courseID INT UNIQUE REFERENCES COURSES(courseID),
-    position INT,
-    Primary Key(waitlistID)
+    studentID NUMBER REFERENCES STUDENTS(studentID),
+    courseID NUMBER REFERENCES COURSES(courseID),
+    position NUMBER,
+    PRIMARY KEY(waitlistID),
+    UNIQUE (studentID, courseID),
+    UNIQUE (courseID, position)
 );
-
