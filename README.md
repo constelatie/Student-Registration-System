@@ -13,6 +13,3 @@ Mario DeVito
 Jeter Wang
 Tammem Ahmed
 
-
-SAMPLE INPUT:
-SAMPLE OUTPUT: 
