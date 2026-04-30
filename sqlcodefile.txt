@@ -53,4 +53,100 @@ CREATE TABLE WAITLIST (
     PRIMARY KEY(waitlistID),
     UNIQUE (studentID, courseID),
     UNIQUE (courseID, position)
+
+Code Pertaining to the capacity enforcement for enrollments, and setting up the waitlist table. Code was provided by Igor Wozniak from Group 2.
+
+Capacity_Enforcement
+
+INPUT: 
+
+CREATE OR REPLACE PROCEDURE Capacity_Enforcement(
+    in_studentId IN NUMBER,
+    in_courseId  IN NUMBER
+) AS
+    v_maxSeats  NUMBER;
+    v_seatCount NUMBER;
+BEGIN
+    -- Lock the course row and read maxSeats
+    SELECT maxSeats INTO v_maxSeats
+      FROM COURSES
+     WHERE courseID = in_courseId
+       FOR UPDATE;
+
+    -- Derive current fill level from ENROLLMENTS
+    -- (COURSES has no seatNum column)
+    SELECT COUNT(*) INTO v_seatCount
+      FROM ENROLLMENTS
+     WHERE courseID = in_courseId;
+
+    IF v_seatCount < v_maxSeats THEN
+        -- Seat open: enroll with next seat number
+        INSERT INTO ENROLLMENTS (studentID, courseID, seatNum)
+        VALUES (in_studentId, in_courseId, v_seatCount + 1);
+    ELSE
+        -- Course full: add to waitlist
+        INSERT INTO WAITLIST (studentID, courseID, position)
+        VALUES (in_studentId, in_courseId,
+               (SELECT COUNT(*) + 1 FROM WAITLIST WHERE courseID = in_courseId));
+    END IF;
+
+    COMMIT;
+
+EXCEPTION
+    WHEN DUP_VAL_ON_INDEX THEN
+        ROLLBACK;
+    WHEN OTHERS THEN
+        ROLLBACK;
+        RAISE;
+END Capacity_Enforcement;
+
+
+Enroll_Waitlisted
+
+CREATE OR REPLACE PROCEDURE Enroll_Waitlisted(
+    p_courseId IN NUMBER
+) AS
+    v_studentId NUMBER;
+    v_maxSeats  NUMBER;
+    v_seatCount NUMBER;
+BEGIN
+    -- Lock the course row and read maxSeats
+    SELECT maxSeats INTO v_maxSeats
+      FROM COURSES
+     WHERE courseID = p_courseId
+       FOR UPDATE;
+
+    -- Count current enrollments after the drop has occurred
+    SELECT COUNT(*) INTO v_seatCount
+      FROM ENROLLMENTS
+     WHERE courseID = p_courseId;
+
+    IF v_seatCount < v_maxSeats THEN
+        -- Find the student at Position 1
+        SELECT studentID INTO v_studentId
+          FROM WAITLIST
+         WHERE courseID = p_courseId
+           AND position = 1;
+
+        -- Move them into ENROLLMENTS
+        -- timeStamp omitted — defaults to SYSDATE automatically
+        INSERT INTO ENROLLMENTS (studentID, courseID, seatNum)
+        VALUES (v_studentId, p_courseId, v_seatCount + 1);
+
+        -- Remove from waitlist
+        DELETE FROM WAITLIST
+         WHERE studentID = v_studentId AND courseID = p_courseId;
+
+        -- Shift remaining positions up by 1
+        UPDATE WAITLIST SET position = position - 1
+         WHERE courseID = p_courseId;
+    END IF;
+
+    COMMIT;
+
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        COMMIT; -- Waitlist empty — release FOR UPDATE lock cleanly
+END Enroll_Waitlisted;
+
 );
