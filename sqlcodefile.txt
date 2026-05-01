@@ -189,7 +189,6 @@ FOR EACH ROW
 DECLARE
 v_nextSeat NUMBER;
 v_maxSeats NUMBER;
-v_waitPOS NUMBER;
 BEGIN
     SELECT maxSeats INTO v_maxSeats 
     FROM COURSES
@@ -201,14 +200,25 @@ BEGIN
     WHERE courseID = :new.courseID;
 
     IF v_nextSeat > v_maxSeats THEN
-        SELECT COALESCE(MAX(position), 0) + 1
-        INTO v_waitPos
-        FROM WAITLIST
-        where courseID = :new.courseID;
-
-        INSERT INTO WAITLIST(studentID, courseID, position) VALUES (:new.studentID, :new.courseID, v_waitPos);
+        INSERT INTO WAITLIST(studentID, courseID) VALUES (:new.studentID, :new.courseID);
         RAISE_APPLICATION_ERROR(-20001, 'Course is full, moved student to waitlist.');
     ELSE 
         :new.seatNum := v_nextSeat;
     END IF;
 END;
+
+//trigegr to automatically assign a waitlist position - brianna belot
+
+CREATE OR REPLACE TRIGGER autoWaitlist
+BEFORE INSERT ON WAITLIST
+FOR EACH ROW
+DECLARE
+    v_maxPos NUMBER;
+BEGIN
+    SELECT COALESCE(MAX(position), 0) + 1 
+    INTO v_maxPos
+    FROM WAITLIST
+    WHERE courseId = :new.courseId;
+    :new.position := v_maxPos;
+END;
+
