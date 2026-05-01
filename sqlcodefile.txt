@@ -66,7 +66,7 @@ CREATE OR REPLACE PROCEDURE Capacity_Enforcement(
     in_courseId  IN NUMBER
 ) AS
     v_maxSeats  NUMBER;
-    v_seatCount NUMBER;
+    v_seatNum NUMBER;
 BEGIN
     -- Lock the course row and read maxSeats
     SELECT maxSeats INTO v_maxSeats
@@ -76,14 +76,14 @@ BEGIN
 
     -- Derive current fill level from ENROLLMENTS
     -- (COURSES has no seatNum column)
-    SELECT COUNT(*) INTO v_seatCount
+    SELECT COUNT(*) INTO v_seatNum
       FROM ENROLLMENTS
      WHERE courseID = in_courseId;
 
-    IF v_seatCount < v_maxSeats THEN
+    IF v_seatNum < v_maxSeats THEN
         -- Seat open: enroll with next seat number
         INSERT INTO ENROLLMENTS (studentID, courseID, seatNum)
-        VALUES (in_studentId, in_courseId, v_seatCount + 1);
+        VALUES (in_studentId, in_courseId, v_seatNum + 1);
     ELSE
         -- Course full: add to waitlist
         INSERT INTO WAITLIST (studentID, courseID, position)
@@ -92,6 +92,15 @@ BEGIN
     END IF;
 
     COMMIT;
+
+EXCEPTION
+    WHEN DUP_VAL_ON_INDEX THEN
+        ROLLBACK;
+    WHEN OTHERS THEN
+        ROLLBACK;
+        RAISE;
+END Capacity_Enforcement;
+
 
 EXCEPTION
     WHEN DUP_VAL_ON_INDEX THEN
