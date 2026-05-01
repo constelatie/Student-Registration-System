@@ -181,14 +181,34 @@ ADD (
     NOT NULL
 );
 
-//trigger to automatically assign seatnum to an enrollment instead of the user doing it manually - christiana mattheopoulos
+//trigger to automatically assign seatnum to an enrollment instead of the user doing it manually, assigns student to waitlist if full - christiana mattheopoulos
 
 CREATE OR REPLACE TRIGGER assignSeats
 BEFORE INSERT ON ENROLLMENTS
 FOR EACH ROW
+DECLARE
+v_nextSeat NUMBER;
+v_maxSeats NUMBER;
+v_waitPOS NUMBER;
 BEGIN
+    SELECT maxSeats INTO v_maxSeats 
+    FROM COURSES
+    WHERE courseID = :new.courseID;
+
     SELECT COALESCE(MAX(seatNum), 0) + 1
-    INTO: new.seatNum
+    INTO v_nextSeat
     FROM ENROLLMENTS
     WHERE courseID = :new.courseID;
+
+    IF v_nextSeat > v_maxSeats THEN
+        SELECT COALESCE(MAX(position), 0) + 1
+        INTO v_waitPos
+        FROM WAITLIST
+        where courseID = :new.courseID;
+
+        INSERT INTO WAITLIST(studentID, courseID, position) VALUES (:new.studentID, :new.courseID, v_waitPos);
+        RAISE_APPLICATION_ERROR(-20001, 'Course is full, moved student to waitlist.');
+    ELSE 
+        :new.seatNum := v_nextSeat;
+    END IF;
 END;
