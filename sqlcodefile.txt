@@ -181,7 +181,7 @@ ADD (
     NOT NULL
 );
 
-//trigger to automatically assign seatnum to an enrollment instead of the user doing it manually, assigns student to waitlist if full - christiana mattheopoulos
+//trigger to automatically assign seatnum to an enrollment instead of the user doing it manually, tell user to assign student to waitlist manually if full - christiana mattheopoulos
 
 CREATE OR REPLACE TRIGGER assignSeats
 BEFORE INSERT ON ENROLLMENTS
@@ -200,14 +200,13 @@ BEGIN
     WHERE courseID = :new.courseID;
 
     IF v_nextSeat > v_maxSeats THEN
-        INSERT INTO WAITLIST(studentID, courseID) VALUES (:new.studentID, :new.courseID);
-        RAISE_APPLICATION_ERROR(-20001, 'Course is full, moved student to waitlist.');
+        RAISE_APPLICATION_ERROR(-20001, 'Course is full, please manually register student for waitlist.');
     ELSE 
         :new.seatNum := v_nextSeat;
     END IF;
 END;
 
-//trigegr to automatically assign a waitlist position - brianna belot
+//trigger to automatically assign a waitlist position - christiana mattheopoulos
 
 CREATE OR REPLACE TRIGGER autoWaitlist
 BEFORE INSERT ON WAITLIST
@@ -220,5 +219,15 @@ BEGIN
     FROM WAITLIST
     WHERE courseId = :new.courseId;
     :new.position := v_maxPos;
+END;
+
+//trigger to move a student from the waitlist to enrollments - brianna belot
+
+CREATE OR REPLACE TRIGGER auto_fill_from_waitlist
+AFTER DELETE ON ENROLLMENTS
+FOR EACH ROW
+DECLARE
+BEGIN
+    Enroll_Waitlisted(:OLD.courseID);
 END;
 
