@@ -55,7 +55,7 @@ CREATE TABLE WAITLIST (
     UNIQUE (courseID, position)
 );
 
-//capacity enforcement procedure - igor wozniak, group 2
+//capacity enforcement procedure - igor wozniak from group 2, brianna belot and frank ferrantelli
 
 Capacity_Enforcement
 
