@@ -1,4 +1,4 @@
-//student table code 
+//student table code - christiana mattheopoulos
 CREATE TABLE STUDENTS (
     studentID NUMBER GENERATED ALWAYS AS IDENTITY (START WITH 100),
     fName VARCHAR2(64),
@@ -8,7 +8,7 @@ CREATE TABLE STUDENTS (
     PRIMARY KEY (studentID)
 );
 
-//instructors table code
+//instructors table code - christiana mattheopoulos
 
 CREATE TABLE INSTRUCTORS (
     instructorID NUMBER GENERATED ALWAYS AS IDENTITY (START WITH 200),
@@ -19,7 +19,7 @@ CREATE TABLE INSTRUCTORS (
     PRIMARY KEY (instructorID)
 );
 
-//courses table code
+//courses table code - christiana mattheopoulos
 
 CREATE TABLE COURSES (
     courseID NUMBER GENERATED ALWAYS AS IDENTITY (START WITH 300),
@@ -30,7 +30,7 @@ CREATE TABLE COURSES (
 );
 
 
-//enrollments table code
+//enrollments table code - christiana mattheopoulos, revised by mario devito
 
 CREATE TABLE ENROLLMENTS (
     ticketID NUMBER GENERATED ALWAYS AS IDENTITY,
@@ -43,7 +43,7 @@ CREATE TABLE ENROLLMENTS (
     UNIQUE (courseID, seatNum)
 );
 
-//waitlist table code
+//waitlist table code - christiana mattheopoulos, revised by mario devito
 
 CREATE TABLE WAITLIST (
     waitlistID NUMBER GENERATED ALWAYS AS IDENTITY,
@@ -54,7 +54,7 @@ CREATE TABLE WAITLIST (
     UNIQUE (studentID, courseID),
     UNIQUE (courseID, position)
 
-Code Pertaining to the capacity enforcement for enrollments, and setting up the waitlist table. Code was provided by Igor Wozniak from Group 2.
+//capacity enforcement procedure - igor wozniak, group 2
 
 Capacity_Enforcement
 
@@ -100,6 +100,7 @@ EXCEPTION
         RAISE;
 END Capacity_Enforcement;
 
+//enroll waitlisted to enrollments table - igor wozniak from group 2
 
 Enroll_Waitlisted
 
@@ -150,3 +151,35 @@ EXCEPTION
 END Enroll_Waitlisted;
 
 );
+
+//adds images to student and instructor tables entries - jeter wang and brianna belot
+
+//student images
+
+ALTER TABLE "WSKP_IT1175STUDENTREGISTRATIONSYSTEM"."STUDENTS"
+MODIFY (
+    "PROFILE_PICTURE" VARCHAR(2038 BYTE)
+    DEFAULT 'https://stjohns.instructure.com/images/messages/avatar-50.png'
+    NOT NULL
+);
+
+//instructor images
+
+ALTER TABLE "WSKP_IT1175STUDENTREGISTRATIONSYSTEM"."INSTRUCTORS"
+ADD (
+    "PROFILE_PICTURE" VARCHAR(2038 BYTE)
+    DEFAULT 'https://storage.googleapis.com/path-content/stjohns/media/__sized__/c54717b4-bbcb-40bo-9b00-8a7df2060788/JohnnyProfile-thumbnail-2200x2200.png'
+    NOT NULL
+);
+
+//trigger to automatically assign seatnum to an enrollment instead of the user doing it manually - christiana mattheopoulos
+
+CREATE OR REPLACE TRIGGER assignSeats
+BEFORE INSERT ON ENROLLMENTS
+FOR EACH ROW
+BEGIN
+    SELECT COALESCE(MAX(seatNum), 0) + 1
+    INTO: new.seatNum
+    FROM ENROLLMENTS
+    WHERE courseID = :new.courseID;
+END;
