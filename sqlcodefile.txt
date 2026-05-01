@@ -151,7 +151,6 @@ EXCEPTION
         COMMIT; -- Waitlist empty — release FOR UPDATE lock cleanly
 END Enroll_Waitlisted;
 
-);
 
 //adds images to student and instructor tables entries - jeter wang 
 
