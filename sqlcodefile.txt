@@ -53,6 +53,7 @@ CREATE TABLE WAITLIST (
     PRIMARY KEY(waitlistID),
     UNIQUE (studentID, courseID),
     UNIQUE (courseID, position)
+);
 
 //capacity enforcement procedure - igor wozniak, group 2
 
@@ -152,7 +153,7 @@ END Enroll_Waitlisted;
 
 );
 
-//adds images to student and instructor tables entries - jeter wang and brianna belot
+//adds images to student and instructor tables entries - jeter wang 
 
 //student images
 
