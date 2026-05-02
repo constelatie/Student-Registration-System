@@ -1,4 +1,4 @@
-//student table code - christiana mattheopoulos
+--student table code - christiana mattheopoulos
 CREATE TABLE STUDENTS (
     studentID NUMBER GENERATED ALWAYS AS IDENTITY (START WITH 100),
     fName VARCHAR2(64),
@@ -8,7 +8,7 @@ CREATE TABLE STUDENTS (
     PRIMARY KEY (studentID)
 );
 
-//instructors table code - christiana mattheopoulos
+--instructors table code - christiana mattheopoulos
 
 CREATE TABLE INSTRUCTORS (
     instructorID NUMBER GENERATED ALWAYS AS IDENTITY (START WITH 200),
@@ -19,7 +19,7 @@ CREATE TABLE INSTRUCTORS (
     PRIMARY KEY (instructorID)
 );
 
-//courses table code - christiana mattheopoulos
+--courses table code - christiana mattheopoulos
 
 CREATE TABLE COURSES (
     courseID NUMBER GENERATED ALWAYS AS IDENTITY (START WITH 300),
@@ -30,7 +30,7 @@ CREATE TABLE COURSES (
 );
 
 
-//enrollments table code - christiana mattheopoulos, revised by mario devito
+--enrollments table code - christiana mattheopoulos, revised by mario devito
 
 CREATE TABLE ENROLLMENTS (
     ticketID NUMBER GENERATED ALWAYS AS IDENTITY,
@@ -43,7 +43,7 @@ CREATE TABLE ENROLLMENTS (
     UNIQUE (courseID, seatNum)
 );
 
-//waitlist table code - christiana mattheopoulos, revised by mario devito
+--waitlist table code - christiana mattheopoulos, revised by mario devito
 
 CREATE TABLE WAITLIST (
     waitlistID NUMBER GENERATED ALWAYS AS IDENTITY,
@@ -55,7 +55,7 @@ CREATE TABLE WAITLIST (
     UNIQUE (courseID, position)
 );
 
-//capacity enforcement procedure - igor wozniak from group 2, brianna belot and frank ferrantelli
+--capacity enforcement procedure - igor wozniak from group 2, brianna belot and frank ferrantelli
 
 Capacity_Enforcement
 
@@ -102,7 +102,7 @@ EXCEPTION
 END Capacity_Enforcement;
 
 
-//enroll waitlisted to enrollments table - igor wozniak from group 2
+--enroll waitlisted to enrollments table - igor wozniak from group 2
 
 Enroll_Waitlisted
 
@@ -153,9 +153,9 @@ EXCEPTION
 END Enroll_Waitlisted;
 
 
-//adds images to student and instructor tables entries - jeter wang 
+--adds images to student and instructor tables entries - jeter wang 
 
-//student images
+--student images
 
 ALTER TABLE "WKSP_IT1175STUDENTREGISTRATIONSYSTEM"."STUDENTS"
 MODIFY (
@@ -164,7 +164,7 @@ MODIFY (
     
 );
 
-//instructor images
+--instructor images
 
 ALTER TABLE "WKSP_IT1175STUDENTREGISTRATIONSYSTEM"."INSTRUCTORS"
 MODIFY (
@@ -172,7 +172,7 @@ MODIFY (
     DEFAULT 'https://storage.googleapis.com/path-content/stjohns/media/__sized__/c54717b4-bbcb-40bo-9b00-8a7df2060788/JohnnyProfile-thumbnail-2200x2200.png'
 );
 
-//trigger to automatically assign seatnum to an enrollment instead of the user doing it manually, tell user to assign student to waitlist manually if full - christiana mattheopoulos
+--trigger to automatically assign seatnum to an enrollment instead of the user doing it manually, tell user to assign student to waitlist manually if full - christiana mattheopoulos
 
 CREATE OR REPLACE TRIGGER assignSeats
 BEFORE INSERT ON ENROLLMENTS
@@ -212,7 +212,7 @@ BEGIN
     :new.position := v_maxPos;
 END;
 
-//trigger to check if a class has open seats before going on the waitlist. if so, give the user the error to enroll instead. if a class is full, put them on the waitlist - brianna belot
+--trigger to check if a class has open seats before going on the waitlist. if so, give the user the error to enroll instead. if a class is full, put them on the waitlist - brianna belot
 
 CREATE OR REPLACE TRIGGER checkSeats
 BEFORE INSERT ON WAITLIST
