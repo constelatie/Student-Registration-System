@@ -221,13 +221,28 @@ BEGIN
     :new.position := v_maxPos;
 END;
 
-//trigger to move a student from the waitlist to enrollments - brianna belot
+//trigger to check if a class has open seats before going on the waitlist. if so, give the user the error to enroll instead. if a class is full, put them on the waitlist - brianna belot
 
-CREATE OR REPLACE TRIGGER auto_fill_from_waitlist
-AFTER DELETE ON ENROLLMENTS
+CREATE OR REPLACE TRIGGER checkSeats
+BEFORE INSERT ON WAITLIST
 FOR EACH ROW
 DECLARE
+v_nextSeat NUMBER;
+v_maxSeats NUMBER;
 BEGIN
-    Enroll_Waitlisted(:OLD.courseID);
+    SELECT maxSeats INTO v_maxSeats 
+    FROM COURSES
+    WHERE courseID = :new.courseID;
+
+    SELECT COALESCE(MAX(seatNum), 0) + 1
+    INTO v_nextSeat
+    FROM ENROLLMENTS
+    WHERE courseID = :new.courseID;
+
+    IF v_nextSeat < v_maxSeats THEN
+        RAISE_APPLICATION_ERROR(-20001, 'Course has open spots, please enroll in the class instead.');
+    ELSE 
+        INSERT INTO WAITLIST(studentID, courseID) VALUES (:new.studentID, :new.courseID);
+    END IF;
 END;
 
