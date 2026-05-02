@@ -102,14 +102,6 @@ EXCEPTION
 END Capacity_Enforcement;
 
 
-EXCEPTION
-    WHEN DUP_VAL_ON_INDEX THEN
-        ROLLBACK;
-    WHEN OTHERS THEN
-        ROLLBACK;
-        RAISE;
-END Capacity_Enforcement;
-
 //enroll waitlisted to enrollments table - igor wozniak from group 2
 
 Enroll_Waitlisted
@@ -165,20 +157,19 @@ END Enroll_Waitlisted;
 
 //student images
 
-ALTER TABLE "WSKP_IT1175STUDENTREGISTRATIONSYSTEM"."STUDENTS"
+ALTER TABLE "WKSP_IT1175STUDENTREGISTRATIONSYSTEM"."STUDENTS"
 MODIFY (
     "PROFILE_PICTURE" VARCHAR(2038 BYTE)
     DEFAULT 'https://stjohns.instructure.com/images/messages/avatar-50.png'
-    NOT NULL
+    
 );
 
 //instructor images
 
-ALTER TABLE "WSKP_IT1175STUDENTREGISTRATIONSYSTEM"."INSTRUCTORS"
-ADD (
+ALTER TABLE "WKSP_IT1175STUDENTREGISTRATIONSYSTEM"."INSTRUCTORS"
+MODIFY (
     "PROFILE_PICTURE" VARCHAR(2038 BYTE)
     DEFAULT 'https://storage.googleapis.com/path-content/stjohns/media/__sized__/c54717b4-bbcb-40bo-9b00-8a7df2060788/JohnnyProfile-thumbnail-2200x2200.png'
-    NOT NULL
 );
 
 //trigger to automatically assign seatnum to an enrollment instead of the user doing it manually, tell user to assign student to waitlist manually if full - christiana mattheopoulos
